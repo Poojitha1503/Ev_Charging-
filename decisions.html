@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team 6 | ChargePoint Intelligence — Decision Center</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.2/papaparse.min.js"></script>
+<style>
+:root{--blue:#075985;--deep:#0b4d73;--ink:#16324f;--muted:#617c8d;--line:#c9dce6;--bg:#eef5f8;--teal:#0f766e}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px Arial,Helvetica,sans-serif;color:var(--ink)}
+main{max-width:1500px;width:96%;margin:24px auto 55px}header{background:linear-gradient(90deg,var(--blue),var(--deep));border-radius:9px;color:white;padding:23px 27px;display:flex;justify-content:space-between;gap:18px;align-items:center}
+h1{margin:0;font-size:28px}header p{margin:7px 0 0;color:#dceefa}.team{text-align:right;line-height:1.7;font-size:12px}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin:13px 0}nav a{color:#075985;background:#fff;border:1px solid var(--line);padding:9px 12px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:12px}nav a:hover{background:#dceef7}
+.panel,.kpi,.filter{background:white;border:1px solid var(--line);border-radius:8px}.panel{padding:17px;margin-top:13px}.panel h2{font-size:18px;margin:0 0 10px}.panel h3{font-size:15px;margin:0 0 9px}.small{font-size:12px;color:var(--muted);line-height:1.5}.filters{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.filter{padding:11px}label{display:block;font-size:12px;font-weight:bold;margin-bottom:6px}input,select,textarea,button{font:inherit}input:not([type=range]):not([type=checkbox]):not([type=file]),select,textarea{width:100%;padding:9px;border:1px solid #cbd7e0;border-radius:5px;background:#fff;color:var(--ink)}button,.btn{cursor:pointer;background:#075985;color:white;border:0;border-radius:5px;padding:9px 13px;font-weight:bold}button.secondary{background:#e6f0f6;color:#075985;border:1px solid #bad4e3}button:hover{filter:brightness(.94)}button:disabled{opacity:.45;cursor:not-allowed}
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:11px;margin:13px 0}.kpi{text-align:center;padding:17px 8px}.kpi strong{font-size:12px}.kpi .number{font-size:27px;color:#0876b9;font-weight:bold;margin-top:10px}.charts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.charts .panel{margin:0}.plot{height:255px;position:relative}.plot canvas{max-width:100%}.two{display:grid;grid-template-columns:1fr 1fr;gap:13px}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.row>*{flex-shrink:0}.flex{flex:1}.notice{background:#e8f5f4;border-left:4px solid var(--teal);padding:10px 12px;border-radius:4px}.warn{background:#fff6e5;border-left:4px solid #e2a43a;padding:10px 12px}.weights{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.weight{background:#f5f9fb;padding:10px;border:1px solid #dce8ef;border-radius:6px}.weight input{width:100%}.weight output{float:right;font-weight:bold;color:var(--blue)}.scroll{overflow:auto;max-height:440px}table{border-collapse:collapse;width:100%;font-size:12px;white-space:nowrap}th,td{padding:9px 10px;border-bottom:1px solid #e0e9ee;text-align:left}th{background:#eaf3f8;position:sticky;top:0;z-index:1}tr:hover td{background:#f4f9fc}.tag{padding:4px 7px;border-radius:20px;background:#e3f2f9;font-weight:bold;font-size:11px}.tag.good{background:#dcfce7;color:#166534}.tag.bad{background:#fee2e2;color:#991b1b}.tag.mid{background:#fef3c7;color:#92400e}.sectionlabel{font-size:12px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#075985;margin:23px 0 8px}.actionbar{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.actionbar select,.actionbar input{max-width:250px}.metric{font-size:22px;color:var(--blue);font-weight:bold}.footer{text-align:center;color:var(--muted);font-size:12px;margin:30px}.hidden{display:none!important}
+@media(max-width:1000px){.filters,.kpis{grid-template-columns:repeat(2,1fr)}.charts,.weights,.three{grid-template-columns:repeat(2,1fr)}}@media(max-width:650px){header{display:block}.team{text-align:left;margin-top:10px}.filters,.kpis,.charts,.weights,.two,.three{grid-template-columns:1fr}h1{font-size:23px}}
+</style>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+:root{--blue:#536dff;--deep:#101d48;--ink:#dce9ff;--muted:#9aaccc;--line:rgba(150,180,255,.14);--bg:#070e22;--teal:#32dfbd}
+html{scroll-behavior:smooth;scroll-padding-top:92px}body{font-family:'DM Sans',Arial,sans-serif;color:var(--ink);background:#070e22;min-height:100vh}main{position:relative;z-index:1;max-width:1550px;margin:0 auto 80px;width:94%}
+.ambient{position:fixed;pointer-events:none;z-index:0;filter:blur(65px);opacity:.35}.ambient-a{top:-180px;right:-150px;width:620px;height:620px;border-radius:100%;background:#3840b0}.ambient-b{top:45%;left:-220px;width:550px;height:550px;border-radius:100%;background:#006e79;opacity:.17}
+header{position:relative;overflow:hidden;display:block;margin-top:22px;background:linear-gradient(125deg,#15265b 0%,#0b183d 55%,#182458 100%);border:1px solid rgba(132,164,255,.25);border-radius:24px;padding:30px 37px;box-shadow:0 22px 70px #0005}
+header:after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 78% 45%,#596fff33,transparent 33%),linear-gradient(135deg,transparent 60%,#0df2c00a)}
+.hero-eyebrow{font-size:11px;font-weight:800;letter-spacing:2.4px;color:#65e6d3}.hero-main{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:1;gap:24px}.hero-main h1{font:700 clamp(31px,3.7vw,52px)/1.14 'Space Grotesk',sans-serif;letter-spacing:-1.6px;margin:16px 0 12px;color:#fff}.gradient-text{background:linear-gradient(95deg,#59a4ff,#39e7c3);-webkit-background-clip:text;background-clip:text;color:transparent}.hero-spark{font-size:22px;color:#5de2cd;vertical-align:top}.hero-main p{font-size:15px;color:#afc6ed;max-width:620px;line-height:1.6}.hero-pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:24px}.hero-pills span{border:1px solid #9bb7ff44;border-radius:50px;padding:8px 12px;font-size:10px;letter-spacing:.7px;font-weight:800;color:#bbd0ff;background:#fff1}.hero-orbit{width:178px;height:178px;display:grid;place-items:center;flex-shrink:0}.orbit-ring{width:162px;height:162px;border:1px dashed #68b8ff77;border-radius:50%;display:grid;place-items:center;box-shadow:0 0 0 15px #6a91ff0b,0 0 0 30px #6a91ff07}.orbit-inner{width:122px;height:122px;border-radius:50%;background:linear-gradient(135deg,#2c52ac,#146c85);border:1px solid #85e7ff55;box-shadow:0 0 45px #0bcdcc44;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:41px;color:white}.orbit-inner small{font:800 9px/1.5 'DM Sans';letter-spacing:1px;text-align:center;color:#cceaff}.team{position:relative;z-index:1;text-align:left;color:#839ac8;font-weight:700;letter-spacing:1.5px;font-size:10px;margin-top:21px}.team b{color:#f3f8ff;margin-left:9px}.team span{float:right}
+nav{position:sticky;top:8px;z-index:20;display:flex;align-items:center;gap:5px;background:#111d3bf2;backdrop-filter:blur(16px);border:1px solid #6e85bc33;padding:10px 12px;border-radius:14px;box-shadow:0 10px 28px #0004;margin:15px 0 23px;overflow-x:auto;flex-wrap:nowrap}nav a{white-space:nowrap;color:#9eb5d8;border:0;background:transparent;border-radius:8px;padding:11px 12px;font-size:11px;transition:.2s}nav a:hover{color:white;background:#283e72}.nav-brand{white-space:nowrap;font-weight:800;color:#61e9d0;padding:0 15px 0 6px;letter-spacing:1px;font-size:14px}.nav-brand span{color:#c3d5f4;font-size:10px}
+.panel,.kpi,.filter{background:linear-gradient(145deg,#14213f,#101b35);border:1px solid var(--line);border-radius:16px;box-shadow:0 7px 25px #0002}.panel{padding:22px;margin-top:17px}.panel h2{font:700 20px 'Space Grotesk',sans-serif;color:#f0f6ff;display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0 0 15px}.panel h3{font:700 15px 'Space Grotesk';color:#e7f0ff;margin:0 0 14px}.small{color:#a1b4d1;font-size:12px;line-height:1.7}.sectionlabel{color:#66e6d0;font-size:12px;font-weight:800;letter-spacing:2px;margin:31px 0 14px}.section-trail{font-size:10px;color:#7b92b7;letter-spacing:1px;float:right}.section-chip{font:800 10px 'DM Sans';color:#67e9d2;background:#1a514f77;border:1px solid #42cdb65c;border-radius:50px;padding:6px 10px;letter-spacing:1px}
+.filters{gap:12px}.filter{padding:14px;background:#14213f}.filter label,label{color:#b8c9e5;font-weight:700;font-size:12px}input:not([type=range]):not([type=checkbox]):not([type=file]),select,textarea{background:#0a1630;color:#e9f3ff;border:1px solid #34456b;border-radius:9px;padding:11px;outline:none}input:focus,select:focus,textarea:focus{border-color:#53a3ff;box-shadow:0 0 0 3px #53a3ff22}input[type=file]{max-width:280px;color:#a1b4d1;font-size:12px}input[type=range]{accent-color:#39dbbb;cursor:pointer}input[type=checkbox]{accent-color:#39dbbb}
+button,.btn{background:linear-gradient(110deg,#5575ff,#3977d5);border:1px solid #7b9cff44;color:white;border-radius:9px;padding:11px 15px;box-shadow:0 4px 14px #416aff22;transition:.18s}button:hover{transform:translateY(-1px);filter:brightness(1.13)}button.secondary{background:#1c3159;color:#b5d8ff;border:1px solid #466aa1}
+.kpis{gap:13px;margin:15px 0}.kpi{position:relative;overflow:hidden;text-align:left;padding:21px 19px;min-height:128px}.kpi:before{content:'';position:absolute;width:115px;height:115px;border-radius:50%;right:-43px;top:-50px;background:#4268d91c}.kpi:after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(#51a5ff,#3ce9c0)}.kpi strong{font-size:11px;letter-spacing:.3px;color:#9eb3d6;display:block;max-width:170px;line-height:1.45}.kpi .number{font:700 clamp(22px,2.2vw,30px) 'Space Grotesk';color:#f5f9ff;margin-top:15px;letter-spacing:-1px}.kpi-symbol{position:absolute;right:17px;bottom:18px;color:#4fe2c7;font-size:25px;opacity:.8}.charts{gap:15px}.charts .panel{padding:20px}.plot{height:245px}.notice{background:#0e45465c;border:1px solid #39d7bd55;border-left:4px solid #42e2c3;color:#a8f3e7;border-radius:10px;padding:13px 15px}.warn{background:#4c391b88;border:1px solid #b9873a66;border-left:4px solid #f3b95c;color:#f6dcae;border-radius:10px;padding:13px 15px}
+.weight{background:#0d1a35;border:1px solid #304263;border-radius:11px;padding:14px}.weight output{color:#5fe5d0}.tag{background:#203e65;color:#a6d9ff}.tag.good{background:#124a43;color:#64efd2}.tag.bad{background:#5a2737;color:#ffb1c4}.tag.mid{background:#58401e;color:#f8d58b}
+table{color:#d2e2fc;font-size:12px}th{background:#1b3155;color:#c8dbfa}td,th{border-bottom:1px solid #2a3d5d}tr:hover td{background:#1b3155}.scroll{border-radius:11px;border:1px solid #304263}.footer{color:#8295b5}.row{row-gap:12px}a{color:#8fd6ff}code{color:#67e7cf}.kpis .kpi:nth-child(2):after{background:linear-gradient(#38dfbf,#30b6ac)}.kpis .kpi:nth-child(3):after{background:linear-gradient(#a18aff,#648aff)}.kpis .kpi:nth-child(4):after{background:linear-gradient(#ffb45d,#ff8d74)}.kpis .kpi:nth-child(5):after{background:linear-gradient(#5ab4ff,#6d9dff)}
+@media(max-width:1050px){.nav-brand{display:none}.hero-orbit{width:120px;height:120px}.orbit-ring{transform:scale(.7)}nav a{padding:10px 9px}}
+@media(max-width:650px){main{width:95%}header{padding:22px}.hero-orbit{display:none}.hero-main h1{font-size:32px}.hero-pills span{font-size:9px}.section-trail{display:none}.panel{padding:16px}.kpi{min-height:100px}.kpi .number{font-size:26px}nav{top:0}}
+
+.candidate-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.candidate-result{margin-top:15px;padding:17px;border:1px solid #3ddbc166;border-radius:13px;background:linear-gradient(135deg,#0c2d38,#102748)}
+.candidate-result-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
+.candidate-result .metricbox{background:#0b1831;border:1px solid #304b70;border-radius:10px;padding:13px}
+.candidate-result .metricbox strong{display:block;color:#93a9cc;font-size:10px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}
+.candidate-result .metricbox span{font:700 20px 'Space Grotesk';color:#f4f8ff}
+@media(max-width:1050px){.candidate-grid,.candidate-result-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.candidate-grid,.candidate-result-grid{grid-template-columns:1fr}}
+
+
+.page-switch{display:flex;gap:8px;margin-left:auto}
+.page-switch a{border:1px solid #4d679d;background:#17284c;color:#c5d8f7!important}
+.page-switch a.active{background:linear-gradient(110deg,#5575ff,#3977d5);color:#fff!important;border-color:#6f91ff}
+.decision-hero{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}
+@media(max-width:900px){.decision-hero{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.decision-hero{grid-template-columns:1fr}}
+
+</style>
+
+<style>
+.kpis.six{grid-template-columns:repeat(6,minmax(0,1fr))}
+.site-lookup-grid{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:10px;align-items:end}.site-details{margin-top:12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.site-details .metricbox{background:#0b1831;border:1px solid #304b70;border-radius:10px;padding:13px}.site-details strong{display:block;color:#93a9cc;font-size:10px;text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px}.site-details span{font:700 17px 'Space Grotesk';color:#f4f8ff}.site-find-msg{margin-top:10px}
+@media(max-width:1200px){.kpis.six{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.kpis.six,.site-details{grid-template-columns:1fr}.site-lookup-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><div class="ambient ambient-a"></div><div class="ambient ambient-b"></div><main>
+<header><div class="hero-eyebrow">⚡ TEAM 6 / DECISION INTELLIGENCE PLATFORM</div><div class="hero-main"><div><h1>Charge<span class="gradient-text">Point</span> Intelligence <span class="hero-spark">✦</span></h1><p>Turn site intelligence into an explainable founder decision.</p><div class="hero-pills"><span>◉ LIVE DATA EXPLORER</span><span>◈ WEIGHTED SITE INTELLIGENCE</span><span>◎ ROLE-BASED WORKFLOW</span></div></div><div class="hero-orbit"><div class="orbit-ring"><div class="orbit-inner">⚡<small>EV SITE<br>INTELLIGENCE</small></div></div></div></div><div class="team">TEAM 6 <b>FINAL SOLUTION</b> <span>2026</span></div></header>
+<nav><div class="nav-brand">⚡ CP <span>INTELLIGENCE</span></div>
+<a href="founder.html">← Analysis</a><a href="#decisionSummary">◈ Selected Site</a><a href="#finance">◉ Financial Lab</a>
+<a href="#decisions">✓ Decisions</a><a href="roles.html" style="font-weight:900">◎ Role Interfaces</a>
+<div class="page-switch"><a href="founder.html">1 · Analyze</a><a class="active" href="decisions.html">2 · Decide</a></div></nav>
+<div id="status" class="notice" role="status">Loading updated 1,000-site CSV…</div>
+
+
+
+
+
+
+
+
+<div class="sectionlabel" id="decisionSummary">02 / FOUNDER DECISION CENTER <span class="section-trail">REVIEW • TEST • DECIDE</span></div>
+<section class="panel">
+<h2>◈ Selected Candidate Summary <span class="section-chip">FROM ANALYSIS PAGE</span></h2>
+<p class="small">The candidate selected or most recently added on Page 1 is carried into this Decision Center. You can still choose another candidate in the Financial Lab or Decision Command Center.</p>
+<div class="decision-hero">
+<div class="kpi"><strong>Selected Candidate</strong><div class="number" id="dSite">—</div></div>
+<div class="kpi"><strong>Suitability Score</strong><div class="number" id="dScore">—</div></div>
+<div class="kpi"><strong>Expected Sessions / Day</strong><div class="number" id="dSessions">—</div></div>
+<div class="kpi"><strong>Installation Cost</strong><div class="number" id="dInstall">—</div></div>
+</div>
+<div class="notice" id="decisionSummaryText">Loading candidate data…</div>
+</section>
+
+<section id="finance" class="panel"><h2>◉ Financial Scenario Lab <span class="section-chip">WHAT-IF ANALYSIS</span></h2><p class="warn small">Revenue and ROI are not supplied in the synthetic CSV. Values below are <b>scenario estimates</b> based on editable assumptions, not actual financial returns. They exclude electricity costs, maintenance, utilization constraints, taxes and other operating costs. Do not use these figures as investment advice.</p><div class="three">
+<div class="filter"><label for="revenue">Illustrative Revenue per Session ($)</label><input id="revenue" type="number" min="0" step=".5" value="12"></div>
+<div class="filter"><label for="operating">Illustrative Other Monthly Operating Costs ($)</label><input id="operating" type="number" min="0" step="50" value="500"></div>
+<div class="filter"><label for="financeSite">Enter Candidate Site ID</label><div class="row"><input id="financeSite" placeholder="Example: SITE_0001" style="flex:1;min-width:180px"><button id="findFinanceSite" type="button">Find Site</button></div><div id="financeSiteMessage" class="small" style="margin-top:7px">Type a candidate Site ID.</div></div></div><div class="kpis"><div class="kpi"><strong>Expected Sessions / Month</strong><div class="number" id="fSessions">—</div></div><div class="kpi"><strong>Illustrative Monthly Revenue</strong><div class="number" id="fRevenue">—</div></div><div class="kpi"><strong>Lease / Month</strong><div class="number" id="fLease">—</div></div><div class="kpi"><strong>Illustrative Monthly Contribution</strong><div class="number" id="fNet">—</div></div><div class="kpi"><strong>Simple Payback (Months)</strong><div class="number" id="fPayback">—</div></div></div><p id="financeExplanation" class="small"></p></section>
+<section id="decisions" class="panel"><h2>✓ Decision Command Center <span class="section-chip">AUDITABLE ACTIONS</span></h2><p class="small">The CSV's <code>Founder_Decision</code> is the original simulated decision. New prototype decisions are recorded separately with a timestamp and reason. They are saved in <b>this browser only</b>; export the log to share or back it up.</p><div class="two"><div><label for="decisionSite">Enter Candidate Site ID</label><div class="row"><input id="decisionSite" placeholder="Example: SITE_0001" style="flex:1;min-width:180px"><button id="findDecisionSite" type="button">Find Site</button></div><div id="decisionSiteMessage" class="small" style="margin-top:7px">Type a candidate Site ID.</div></div><div><label for="newDecision">New Decision</label><select id="newDecision"><option value="Approved">Approve</option><option value="Delayed">Delay</option><option value="Declined">Decline</option></select></div></div><div style="margin-top:12px"><label for="reason">Decision Reason</label><textarea id="reason" rows="3" placeholder="Explain the decision based on demand, cost, competition, relationships, or other factors"></textarea></div><div class="actionbar" style="margin-top:10px"><button id="saveDecision">Save Decision</button><button id="exportDecisions" class="secondary">Export Decision Log CSV</button><button id="clearDecisions" class="secondary">Clear Browser Log</button><span id="decisionMessage" class="small"></span></div><div class="scroll" style="margin-top:12px"><table><thead><tr><th>Time</th><th>Site</th><th>Original Decision</th><th>New Decision</th><th>Score</th><th>Reason</th></tr></thead><tbody id="decisionRows"></tbody></table></div></section>
+
+<div class="footer">Team 6 • EV Charging Site Selection • Synthetic academic dataset • Prototype scoring and financial assumptions</div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), C={
+id:'Site_ID',status:'Site_Status',decision:'Founder_Decision',charger:'Charger_Type_Label',parking:'Parking_Type',relationship:'Relationship_Label',ev:'Local_EV_Registrations_in_ZIP_Code',traffic:'Vehicle_Pass_Bys_Per_Day',ped:'Pedestrian_Pass_Bys_Per_Day_Within_0_25_Miles',distance:'Distance_to_Nearest_Public_Charger_Miles',competition:'Competing_Charging_Ports_Within_2_Miles',amenities:'Amenities_Within_0_5_Mile_Walking_Distance',install:'Estimated_Installation_Cost_USD',sessions:'Expected_Charging_Sessions_Per_Day',actual:'Actual_Charging_Sessions_Per_Day',lease:'Estimated_Monthly_Lease_USD',leaseTerm:'Lease_Term_Years',dwell:'Average_Dwell_Time_Minutes',excitement:'Property_Owner_Excitement_1_to_5',order:'Asking_Order',requestDate:'Request_Date',decisionDate:'Decision_Date'};
+const mandatory=[C.id,C.status,C.decision,C.charger,C.ev,C.traffic,C.ped,C.competition,C.amenities,C.install,C.sessions,C.lease,C.order,C.distance,C.excitement,C.actual];
+let all=[], filtered=[], ranked=[], charts={}, selected=new Set(), decisions=[], dataVersion=0;
+const weightDefs=[
+['demand','Local EV Registrations',20,C.ev,1],['traffic','Vehicle Traffic',10,C.traffic,1],['ped','Pedestrian Traffic',5,C.ped,1],['amenities','Nearby Amenities',10,C.amenities,1],['competition','Competition (lower better)',15,C.competition,-1],['distance','Distance from Charger',10,C.distance,1],['sessions','Expected Sessions',15,C.sessions,1],['install','Installation Cost (lower better)',5,C.install,-1],['lease','Monthly Lease (lower better)',5,C.lease,-1],['excitement','Owner Excitement',5,C.excitement,1]];
+const defaults=Object.fromEntries(weightDefs.map(w=>[w[0],w[2]]));let weights={...defaults};
+const num=v=>v==null||String(v).trim()===''?NaN:Number(v);
+const fmt=(v,d=0)=>Number.isFinite(v)?v.toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d}):'—';
+const usd=v=>Number.isFinite(v)?'$'+fmt(v):'—';
+const mean=(a,key)=>{const n=a.map(x=>num(x[key])).filter(Number.isFinite);return n.length?n.reduce((x,y)=>x+y,0)/n.length:NaN};
+const isCandidate=r=>String(r[C.status]).trim().toLowerCase()==='candidate';
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function message(s,bad=false){if(!$('status'))return;$('status').className=bad?'warn':'notice';$('status').textContent=s}
+function unique(k){return [...new Set(all.map(r=>String(r[k]??'').trim()).filter(Boolean))].sort()}
+function fillSelect(id,key){let s=$(id),value=s.value;s.innerHTML='<option value="">All</option>'+unique(key).map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');if([...s.options].some(o=>o.value===value))s.value=value}
+function options(id,rows){let old=$(id).value;$(id).innerHTML=rows.map(r=>`<option value="${esc(r[C.id])}">${esc(r[C.id])}</option>`).join('');if(rows.some(r=>r[C.id]===old))$(id).value=old}
+function validate(rows,headers){let missing=mandatory.filter(k=>!headers.includes(k));if(missing.length)throw Error('Missing required columns: '+missing.join(', '));let seen=new Set(),dupes=0,bad=0,invalid=0;
+for(const r of rows){if(!r[C.id]||seen.has(r[C.id]))dupes++;seen.add(r[C.id]);for(const k of [C.ev,C.traffic,C.ped,C.competition,C.amenities,C.install,C.sessions,C.lease]){let n=num(r[k]);if(!Number.isFinite(n)||n<0){invalid++;break}}if(!['Candidate','Existing'].includes(String(r[C.status]).trim()))bad++}
+if(dupes||bad||invalid)throw Error(`Data validation failed: ${dupes} duplicate/missing IDs, ${bad} invalid site statuses, ${invalid} rows with missing/negative numeric inputs.`);
+return `Validated ${fmt(rows.length)} sites and ${headers.length} columns. Unique Site_ID values: ${fmt(seen.size)}. Existing-site actual sessions: ${rows.filter(r=>!isCandidate(r)&&Number.isFinite(num(r[C.actual]))).length}. Candidate sites without actual sessions: ${rows.filter(r=>isCandidate(r)&&!Number.isFinite(num(r[C.actual]))).length}.`}
+function loadCSV(text,source){Papa.parse(text,{header:true,skipEmptyLines:true,complete:res=>{try{
+if(res.errors.length)throw Error(res.errors[0].message);
+let rows=res.data.map(r=>Object.fromEntries(Object.entries(r).map(([k,v])=>[k,String(v??'').trim()])));try{const extra=JSON.parse(localStorage.getItem('team6-evaluated-sites')||'[]');if(Array.isArray(extra)){for(const x of extra){if(x&&x.Site_ID&&!rows.some(r=>String(r.Site_ID).toLowerCase()===String(x.Site_ID).toLowerCase()))rows.push(Object.fromEntries(Object.entries(x).map(([k,v])=>[k,String(v??'')])))}}}catch{};
+validate(rows,res.meta.fields||[]);all=rows;dataVersion++;scoreAll();renderDecisionPage();
+}catch(e){alert('Could not load decision data: '+e.message)}},error:e=>alert('CSV parse error: '+e.message)})}
+async function loadDefault(){try{let r=await fetch('./data.csv?cache='+Date.now());if(!r.ok)throw Error('HTTP '+r.status);loadCSV(await r.text(),'repository data.csv')}catch(e){alert('Could not load data.csv. Keep decisions.html in the same repository as data.csv. '+e.message)}}
+function recalc(){if(!all.length)return;let map=[['statusFilter',C.status],['decisionFilter',C.decision],['chargerFilter',C.charger],['parkingFilter',C.parking],['relationFilter',C.relationship]];
+filtered=all.filter(r=>map.every(([id,k])=>!$(id).value||r[k]===$(id).value));scoreAll();render()}
+function scoreAll(){let candidates=all.filter(isCandidate),ranges={};for(const [id,,w,k] of weightDefs){let vals=candidates.map(r=>num(r[k])).filter(Number.isFinite);ranges[id]=[Math.min(...vals),Math.max(...vals)]}
+for(const r of all){if(!isCandidate(r)){r._score=NaN;continue}let sum=0,total=0;for(const [id,,w,k,dir] of weightDefs){let weight=weights[id]||0,[lo,hi]=ranges[id],v=num(r[k]);if(!weight||!Number.isFinite(v))continue;let normalized=hi===lo?.5:(v-lo)/(hi-lo);sum+=weight*(dir===1?normalized:1-normalized);total+=weight}r._score=total?100*sum/total:NaN}
+ranked=all.filter(isCandidate).sort((a,b)=>b._score-a._score)}
+function sortRanking(){let key=$('sort').value;ranked.sort((a,b)=>key==='cost'?num(a[C.install])-num(b[C.install]):key==='order'?num(a[C.order])-num(b[C.order]):key==='sessions'?num(b[C.sessions])-num(a[C.sessions]):b._score-a._score)}
+function setKpi(id,value){$(id).textContent=value}
+function chart(id,type,labels,datasets,extra={}){if(!window.Chart)return;Chart.defaults.color='#a7bde0';Chart.defaults.borderColor='rgba(142,174,227,.12)';Chart.defaults.font.family='DM Sans, Arial, sans-serif';if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:datasets.length>1||type==='doughnut',position:'bottom'}},...extra}})}
+function counts(rows,k){return Object.entries(rows.reduce((o,r)=>(o[r[k]||'Unknown']=(o[r[k]||'Unknown']||0)+1,o),{}))}
+function bar(id,labels,data,label='Sites'){
+ const palette=['#4f8dfb','#34d9b6','#ffb85c','#b79aff','#f07fa6','#50c5e9'];
+ const colors=labels.map((name,i)=>{
+  const label=String(name).toLowerCase();
+  if(id==='chartSessions')return /actual/.test(label)?'#34d9b6':'#4f8dfb';
+  if(id==='chartDemand'){
+    if(/candidate|propos|potential|new/.test(label))return '#4f8dfb';
+    if(/existing|operat|active|installed/.test(label))return '#ffb85c';
+  }
+  return palette[i%palette.length];
+ });
+ chart(id,'bar',labels,[{label,data,backgroundColor:colors,borderColor:colors,borderWidth:1,borderRadius:7,maxBarThickness:72}],{
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:context=>`${context.label}: ${Number(context.parsed.y).toLocaleString(undefined,{maximumFractionDigits:1})}`}}},
+  scales:{y:{beginAtZero:true}}
+ });
+}
+function scatter(id,x,y){let pts=filtered.map(r=>({x:num(r[x]),y:num(r[y])})).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));chart(id,'scatter',[],[{label:'Sites',data:pts,pointRadius:3,backgroundColor:'rgba(75,194,229,.55)'}],{scales:{x:{type:'linear'},y:{type:'linear'}}})}
+function renderCharts(){let dc=counts(filtered,C.decision);chart('chartDecision','doughnut',dc.map(x=>x[0]),[{label:'Sites',data:dc.map(x=>x[1]),backgroundColor:['#5a86ff','#3bdcba','#ffb65c','#b09aff','#7586a7']}]);let cc=counts(filtered.filter(isCandidate),C.charger);
+const chargerColors=cc.map(([name])=>/dc\s*fast|dcfc|level\s*3/i.test(name)?'#ffb85c':/level\s*2|l2/i.test(name)?'#34d9b6':'#4f8dfb');
+chart('chartCharger','bar',cc.map(x=>x[0]),[{label:'Candidate Sites',data:cc.map(x=>x[1]),backgroundColor:chargerColors,borderColor:chargerColors,borderWidth:1,borderRadius:7,maxBarThickness:72}],{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}});let existing=filtered.filter(r=>!isCandidate(r)&&Number.isFinite(num(r[C.actual])));bar('chartSessions',['Expected (existing)','Actual (existing)'],[mean(existing,C.sessions)||0,mean(existing,C.actual)||0],'Average Sessions / Day');let statuses=unique(C.status).filter(s=>filtered.some(r=>r[C.status]===s));bar('chartDemand',statuses,statuses.map(s=>mean(filtered.filter(r=>r[C.status]===s),C.ev)||0),'Average Registrations');scatter('chartTraffic',C.traffic,C.sessions);scatter('chartCompetition',C.competition,C.sessions)}
+function renderInsights(){let a=filtered.filter(isCandidate),e=filtered.filter(r=>!isCandidate(r));$('insights').innerHTML=`<p><b>${fmt(a.length)}</b> candidate sites and <b>${fmt(e.length)}</b> existing sites match your filters.</p><p>Average expected charging sessions: <b>${fmt(mean(filtered,C.sessions),1)}/day</b>. Existing-site average actual sessions: <b>${fmt(mean(e,C.actual),1)}/day</b> (existing sites only).</p><p>Average local EV registrations: <b>${fmt(mean(filtered,C.ev))}</b>; average competing ports within 2 miles: <b>${fmt(mean(filtered,C.competition),1)}</b>.</p><p>Top-ranked visible candidate: <b>${esc(ranked[0]?.[C.id]||'None')}</b>, suitability score <b>${fmt(ranked[0]?._score,1)}</b> / 100. Scores are model assumptions, not ground-truth site performance.</p>`}
+function renderRanking(){sortRanking();let q=$('search').value.trim().toLowerCase(),rows=ranked.filter(r=>r[C.id].toLowerCase().includes(q));$('rankCount').textContent=fmt(rows.length)+' candidates';$('rankingRows').innerHTML=rows.slice(0,200).map(r=>`<tr><td><input aria-label="Compare ${esc(r[C.id])}" type="checkbox" data-site="${esc(r[C.id])}" ${selected.has(r[C.id])?'checked':''}></td><td>${ranked.indexOf(r)+1}</td><td>${esc(r[C.id])}</td><td><span class="tag good">${fmt(r._score,1)}</span></td><td>${esc(r[C.charger])}</td><td>${fmt(num(r[C.sessions]),1)}</td><td>${usd(num(r[C.install]))}</td><td>${usd(num(r[C.lease]))}</td><td>${esc(r[C.decision])}</td><td>${fmt(num(r[C.order]))}</td></tr>`).join('');$('rankCount').textContent+=' (showing first '+Math.min(rows.length,200)+')';renderComparison()}
+function renderComparison(){let rows=all.filter(r=>selected.has(r[C.id]));$('compareText').textContent=rows.length?rows.length+' site(s) selected.':'Select up to three sites in the ranking table.';let attrs=[['Suitability',r=>fmt(r._score,1)+' / 100'],['Expected sessions/day',r=>fmt(num(r[C.sessions]),1)],['Local EV registrations',r=>fmt(num(r[C.ev]))],['Vehicle pass-bys/day',r=>fmt(num(r[C.traffic]))],['Competing ports',r=>fmt(num(r[C.competition]))],['Amenities',r=>fmt(num(r[C.amenities]))],['Install cost',r=>usd(num(r[C.install]))],['Monthly lease',r=>usd(num(r[C.lease]))],['Original decision',r=>r[C.decision]],['Relationship',r=>r[C.relationship]]];$('compareTable').innerHTML=rows.length?`<thead><tr><th>Metric</th>${rows.map(r=>`<th>${esc(r[C.id])}</th>`).join('')}</tr></thead><tbody>${attrs.map(([k,fn])=>`<tr><th>${esc(k)}</th>${rows.map(r=>`<td>${esc(fn(r))}</td>`).join('')}</tr>`).join('')}</tbody>`:''}
+function findCandidateById(v){let q=String(v||'').trim().toLowerCase();return all.find(x=>isCandidate(x)&&String(x[C.id]).toLowerCase()===q)}
+function renderFinance(){let r=findCandidateById($('financeSite').value);if(!r){$('financeSiteMessage').textContent='Candidate Site ID not found.';return}$('financeSite').value=r[C.id];$('financeSiteMessage').textContent='Found '+r[C.id]+'. Financial scenario updated.';let sessions=num(r[C.sessions])*30,revenue=sessions*Math.max(0,num($('revenue').value)||0),lease=num(r[C.lease]),other=Math.max(0,num($('operating').value)||0),net=revenue-lease-other,payback=net>0?num(r[C.install])/net:NaN;setKpi('fSessions',fmt(sessions));setKpi('fRevenue',usd(revenue));setKpi('fLease',usd(lease));setKpi('fNet',usd(net));setKpi('fPayback',net>0?fmt(payback,1):'N/A');$('financeExplanation').textContent=`${r[C.id]}: 30 days × ${fmt(num(r[C.sessions]),1)} expected sessions/day × ${usd(num($('revenue').value)||0)} revenue/session − ${usd(lease)} lease − ${usd(other)} other assumed monthly operating costs. Simple payback = ${usd(num(r[C.install]))} installation cost ÷ positive monthly contribution. No payback if contribution ≤ 0.`}
+function renderDecisions(){ $('decisionRows').innerHTML=decisions.slice().reverse().map(d=>`<tr><td>${esc(d.time)}</td><td>${esc(d.site)}</td><td>${esc(d.original)}</td><td><span class="tag ${d.decision==='Install'?'good':d.decision==='Decline'?'bad':'mid'}">${esc(d.decision)}</span></td><td>${esc(d.score)}</td><td style="white-space:normal;min-width:230px">${esc(d.reason)}</td></tr>`).join('')}
+function renderScoringPreview(){
+ const top=ranked[0], avg=ranked.length?ranked.reduce((s,r)=>s+r._score,0)/ranked.length:NaN;
+ $('sTop').textContent=top?top[C.id]:'—';
+ $('sTopScore').textContent=top?fmt(top._score,1)+'/100':'—';
+ $('sAvg').textContent=fmt(avg,1)+'/100';
+ $('scoringStatus').textContent=`Scoring ${fmt(ranked.length)} visible candidate sites. Weight total: ${Object.values(weights).reduce((a,b)=>a+b,0)}%. Scores are recalculated when you adjust sliders.`;
+ $('scoringPreview').innerHTML=ranked.slice(0,10).map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r[C.id])}</td><td>${fmt(r._score,1)} / 100</td><td>${fmt(num(r[C.sessions]),1)}</td><td>${usd(num(r[C.install]))}</td></tr>`).join('');
+}
+function render(){renderDecisions()}
+
+function renderDecisionSummary(){
+  let preferred='';try{preferred=localStorage.getItem('team6-selected-candidate')||''}catch{}
+  let r=all.find(x=>x[C.id]===preferred&&isCandidate(x))||ranked[0];
+  if(!r)return;
+  $('dSite').textContent=r[C.id];$('dScore').textContent=fmt(r._score,1)+'/100';
+  $('dSessions').textContent=fmt(num(r[C.sessions]),1);$('dInstall').textContent=usd(num(r[C.install]));
+  $('decisionSummaryText').textContent=`${r[C.id]} is ready for final review. Use the Financial Scenario Lab below, then record an Approve, Delay, or Decline decision with a reason.`;
+  $('financeSite').value=r[C.id]; $('decisionSite').value=r[C.id];
+}
+function renderDecisionPage(){
+  scoreAll();
+  renderDecisionSummary();renderFinance();renderDecisions();
+}
+
+function exportCSV(filename,rows){if(!rows.length){alert('Nothing to export.');return}let text=Papa.unparse(rows),url=URL.createObjectURL(new Blob([text],{type:'text/csv;charset=utf-8;'})),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+
+for(const id of ['revenue','operating'])$(id).addEventListener('input',renderFinance);
+function chooseFinanceSite(){let r=findCandidateById($('financeSite').value);if(!r){$('financeSiteMessage').textContent='Candidate Site ID not found. Check the ID and try again.';return}$('financeSite').value=r[C.id];$('decisionSite').value=r[C.id];try{localStorage.setItem('team6-selected-candidate',r[C.id])}catch{}renderDecisionSummary();renderFinance()}
+function chooseDecisionSite(){let r=findCandidateById($('decisionSite').value);if(!r){$('decisionSiteMessage').textContent='Candidate Site ID not found. Check the ID and try again.';return}$('decisionSite').value=r[C.id];$('decisionSiteMessage').textContent='Found '+r[C.id]+'. Ready for a decision.';try{localStorage.setItem('team6-selected-candidate',r[C.id])}catch{}renderDecisionSummary()}
+$('findFinanceSite').addEventListener('click',chooseFinanceSite);$('financeSite').addEventListener('keydown',e=>{if(e.key==='Enter')chooseFinanceSite()});$('findDecisionSite').addEventListener('click',chooseDecisionSite);$('decisionSite').addEventListener('keydown',e=>{if(e.key==='Enter')chooseDecisionSite()});
+const storageKey='team6-ev-site-decisions-v1';try{decisions=JSON.parse(localStorage.getItem(storageKey)||'[]');if(!Array.isArray(decisions))decisions=[]}catch{decisions=[]}
+$('saveDecision').addEventListener('click',()=>{let r=findCandidateById($('decisionSite').value),id=r?r[C.id]:$('decisionSite').value.trim(),reason=$('reason').value.trim();if(!r||!reason){$('decisionMessage').textContent='Choose a site and enter a reason.';return}decisions.push({time:new Date().toLocaleString(),site:id,original:r[C.decision],decision:$('newDecision').value,score:fmt(r._score,1),reason});try{localStorage.setItem(storageKey,JSON.stringify(decisions));$('decisionMessage').textContent='Saved in this browser. Export to preserve a copy.'}catch{$('decisionMessage').textContent='Browser storage unavailable. Export your decision log now.'}try{let rs=JSON.parse(localStorage.getItem('team6-owner-requests')||'[]');let req=rs.find(x=>x.siteId===id);if(req){req.decision=$('newDecision').value;req.decisionReason=reason;req.status='Founder Decision Complete';localStorage.setItem('team6-owner-requests',JSON.stringify(rs))}let es=JSON.parse(localStorage.getItem('team6-evaluated-sites')||'[]');let er=es.find(x=>x.Site_ID===id);if(er){er.Workflow_Decision=$('newDecision').value;localStorage.setItem('team6-evaluated-sites',JSON.stringify(es))}}catch{};$('reason').value='';renderDecisions()});
+$('exportDecisions').addEventListener('click',()=>exportCSV('founder_decision_log.csv',decisions));
+$('clearDecisions').addEventListener('click',()=>{if(confirm('Clear all locally saved prototype decisions?')){decisions=[];try{localStorage.removeItem(storageKey)}catch{}renderDecisions()}});
+loadDefault();
+
+</script></body></html>
